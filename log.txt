@@ -1,2 +1,7 @@
 Du har lånat 'Cold Days' (ID: 1) den 2024-10-16 23:47:44
 Du har lånat 'Dracula' (ID: 2) den 2024-10-16 23:57:44
+Du har lånat 'Dracula' (ID: 2) den 2024-10-17 14:00:33
+Du har lånat 'Cold Days' (ID: 1) den 2024-10-17 14:12:05
+Du har lånat 'Cold Days' (ID: 1) den 2024-10-17 14:44:34
+Du har lämnat tillbaks 'Cold Days' (ID: 1) den 2024-10-17 14:44:40
+Du har lånat 'The Fault In Our Stars' (ID: 3) den 2024-10-17 15:06:01

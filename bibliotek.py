@@ -12,12 +12,21 @@ class Bibliotek:
         self.cursor = self.connect.cursor() # Skapar cursor OBJEKT för att köra SQL kommandon
 
     def låna(self):
-            # Be användaren om boktitel och låna ut den om den finns
-            titel = input("Ange titeln på boken du vill låna: ")
+            # Hämtar alla böcker som har status icke utlånad
+            self.cursor.execute("SELECT * FROM böcker WHERE utlånad = 0")
+            tillgängliga_böcker = self.cursor.fetchall() # Vi lagrar en lista i variabeln med alla böcker som inte är utlånade
 
-            # Vi går igenom alla kolumner SQL tabellen "böcker", endast från rader där "titel" matchar ett specifikt värde vi anger. =? är en platshållare för variabeln titel.
+            if tillgängliga_böcker:
+                print ("Tillgängliga böcker att låna:")
+                for bok in tillgängliga_böcker:
+                    print(f"ID: {bok[0]}, Titel: {bok[1]}, Författare: {bok[2]}, Kategori: {bok[3]}")
+
+            # Be användaren om boktitel och låna ut den om den finns
+            titel = input("\nAnge titeln på boken du vill låna: ").lower()
+
+            # Vi går igenom alla titlar i tabellen "böcker". =? är en platshållare för variabeln titel.
                 # "AND utlånad = 0" betyder att vi bara vill hämta böcker som inte är utlånade.
-            self.cursor.execute("SELECT * FROM böcker WHERE titel = ? AND utlånad = 0", (titel,))
+            self.cursor.execute("SELECT * FROM böcker WHERE LOWER(titel) = ? AND utlånad = 0", (titel,))
 
             # bok är en tuple som innehåller bokens data från databasen (ID, titel, författare, kategori, utlånad status).
             bok = self.cursor.fetchone()  # Hämta första matchande bok| fetchone() gör så att vi bara hämtar 1 bok även om det finns fler som matchar.
@@ -26,11 +35,11 @@ class Bibliotek:
                 # Ändrar boken till status utlånad, bok[0] hämtar bokens id från tabellen. t.ex så skulle bok[1] hämta titel.
                 self.cursor.execute("UPDATE böcker SET utlånad = 1 WHERE id = ?", (bok[0],))
                 self.connect.commit() # Sparar ändringarna permanent i databsen.
-                # Hämta aktuell tid och datum
-                nu = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
+                
                 # Skriver till loggfilen när boken lånas ut
                 with open ("log.txt", "a", encoding="utf-8") as fil:
+                    # Hämta aktuell tid och datum
+                    nu = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     fil.write(f"Du har lånat '{bok[1]}' (ID: {bok[0]}) den {nu}\n")
                     
                 print(f"Boken {bok[1]} är nu utlånad.") # Printar bok titeln är utlånad
@@ -39,8 +48,8 @@ class Bibliotek:
 
 
     def lämna_tillbaks(self):
-        titel = input ("Ange titel på boken du vill lämna tillbaks")
-        self.cursor.execute("SELECT * FROM böcker WHERE titel = ? AND utlånad =  1", (titel,))
+        titel = input ("Ange titel på boken du vill lämna tillbaks: ").lower()
+        self.cursor.execute("SELECT * FROM böcker WHERE LOWER(titel) = ? AND utlånad =  1", (titel,))
 
         bok = self.cursor.fetchone()
 
@@ -48,8 +57,13 @@ class Bibliotek:
             # Uppdaterar boken med status ej lånad. "WHERE id" med parametern bok[0] gör så att endast denna bok med ett unikt ID ändrar status och inte flera som råkar ha samma namn.
             self.cursor.execute("UPDATE böcker SET utlånad = 0 WHERE id = ?", (bok[0],))
             self.connect.commit()
+
             print (f"Boken {bok[1]} har lämnats tillbaks.")
-        
+
+            with open ("log.txt", "a", encoding="utf-8") as fil:
+                nu = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                fil.write(f"Du har lämnat tillbaks '{bok[1]}' (ID: {bok[0]}) den {nu}\n")
+                  
         else:
              print (f"Boken {titel} finns inte bland våra lånade böcker.")
 
