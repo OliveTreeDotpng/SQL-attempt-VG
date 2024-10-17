@@ -16,6 +16,11 @@ class Bibliotek:
             self.cursor.execute("SELECT * FROM böcker WHERE utlånad = 0")
             tillgängliga_böcker = self.cursor.fetchall() # Vi lagrar en lista i variabeln med alla böcker som inte är utlånade
 
+            # Ifall det inte finns några element i listan "tillgängliga_böcker" så skickas du ut till huvudmenyn.
+            if not tillgängliga_böcker:
+                print ("Det finns inga böcker att låna.")
+                return
+
             if tillgängliga_böcker:
                 print ("Tillgängliga böcker att låna:")
                 for bok in tillgängliga_böcker:
@@ -48,6 +53,20 @@ class Bibliotek:
 
 
     def lämna_tillbaks(self):
+        # Här hämtar vi allt från tabellen böcker. utlånad = 1 är alla böcker som är utlånade.
+        self.cursor.execute("SELECT * FROM böcker WHERE utlånad = 1")
+        lånade_böcker = self.cursor.fetchall() # Skapar en lista (lånade_böcker) med alla böcker som är lånade
+
+        # Ifall det inte finns några böcker att lämna tillbaks så skickar vi tillbaks dig till huvudmenyn.
+        if not lånade_böcker:
+            print ("Det finns inga böcker att lämna tillbaks.")
+            return 
+
+        if lånade_böcker:
+            print ("Alla böcker som är för tillfället lånade: ")
+            for bok in lånade_böcker:
+                print (f"ID: {bok[0]}, Titel: {bok[1]}, Författare: {bok[2]}, Kategori: {bok[3]}")
+
         titel = input ("Ange titel på boken du vill lämna tillbaks: ").lower()
         self.cursor.execute("SELECT * FROM böcker WHERE LOWER(titel) = ? AND utlånad =  1", (titel,))
 
@@ -65,7 +84,7 @@ class Bibliotek:
                 fil.write(f"Du har lämnat tillbaks '{bok[1]}' (ID: {bok[0]}) den {nu}\n")
                   
         else:
-             print (f"Boken {titel} finns inte bland våra lånade böcker.")
+            print (f"Boken {titel} finns inte bland våra lånade böcker.")
 
 
     def lägg_till_bok(self):
@@ -87,7 +106,7 @@ class Bibliotek:
             kategori = input ("Ange kategori för böcker du vill se: ").lower()
 
             # SQLite i Python kräver att vi använder tuples för att skicka parametern till SQL, även om det bara är en, därav kommatecknet.
-            self.cursor.execute("SELECT * FROM böcker WHERE kategori = ?", (kategori,))
+            self.cursor.execute("SELECT * FROM böcker WHERE LOWER(kategori) = ?", (kategori,))
             
             # Hämtar alla böcker från SQL tabellen som en lista av tuples
             böcker = self.cursor.fetchall() 
