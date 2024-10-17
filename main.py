@@ -25,7 +25,7 @@ def huvudprogram():
             mitt_bibliotek.lägg_till_bok()
 
         elif val == "6":
-            mitt_bibliotek.visa_alla_böcker()
+            mitt_bibliotek.ta_bort_böcker()
 
         elif val == "7":
             print ("Hej då välkommen åter!")

@@ -17,10 +17,6 @@ try:
 except Exception as e:
     print (f"Ett fel inträffade {e}")
 
-# Kör SQL-koden som vi läste in från "create_table.sql"
-# "executescript()" används för att köra SQL kommandon, plural, om det finns fler i filen.
-cursor.executescript(sql_script)
-
 # Kontrollera om tabellen "böcker" har skapats efter att skriptet har körts
 cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='böcker';")
 table_exists = cursor.fetchone()

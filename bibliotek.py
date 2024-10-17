@@ -67,7 +67,7 @@ class Bibliotek:
             for bok in lånade_böcker:
                 print (f"ID: {bok[0]}, Titel: {bok[1]}, Författare: {bok[2]}, Kategori: {bok[3]}")
 
-        titel = input ("Ange titel på boken du vill lämna tillbaks: ").lower()
+        titel = input ("Ange titel på boken du vill lämna tillbaks: ")
         self.cursor.execute("SELECT * FROM böcker WHERE LOWER(titel) = ? AND utlånad =  1", (titel,))
 
         bok = self.cursor.fetchone()
@@ -113,9 +113,9 @@ class Bibliotek:
 
             # Om listan "böcker" inte är tom så körs koden i if blocket. Python tolkar en tom lista som FALSE och kör därmed inte if satsen.
             if böcker:
-                print (f"Böcker i kategorin '{kategori}':")
+                print (f"Böcker i kategorin '{kategori.capitalize()}':")
                 for bok in böcker:
-                    print (f"ID: {bok[0]}, Titel: {bok[1]}, Författare: {bok[2]}, Kategori: {bok[3]}, Utlånad: {bok[4]}") # Hämtar varje kolumn från tabellen
+                    print (f"ID: {bok[0]}, Titel: {bok[1]}, Författare: {bok[2]}, Kategori: {bok[3]}, Utlånad: {'Ja' if bok[4] else 'Nej'}") # Hämtar varje kolumn från tabellen
 
             # Om listan böcker är tom så körs else
             else:
@@ -137,19 +137,42 @@ class Bibliotek:
         
         # printar alla böcker
         for bok in skriv_ut_alla_böcker:
-            print (f"ID: {bok[0]}, Titel: {bok[1]}, Författare: {bok[2]}, Kategori: {bok[3]}, Utlånad: {bok[4]}")
+            print (f"ID: {bok[0]}, Titel: {bok[1]}, Författare: {bok[2]}, Kategori: {bok[3]}, Utlånad: {'Ja' if bok[4] else 'Nej'}")
 
 
 
-    def ta__bort_böcker(self, vald):
+    def ta_bort_böcker(self):
+        
+        # Hämtar alla böcker från databasen
+        self.cursor.execute("SELECT * FROM böcker")
 
-        titel = input ("Ange titeln på boken du vill ta bort: ")
+        # Hämtar alla böcker i en tuple 
+        skriv_ut_alla_böcker = self.cursor.fetchall()
 
-        self.cursor.execute("DELETE FROM böcker WHERE titel = ?", (titel,)) # Raderar boken som matchar med parametern i våran tuple.
+        # Om listan är tom, printa följande
+        if not skriv_ut_alla_böcker:
+            print (f"Det finns inga böcker att ta bort!")
+            return
 
-        self.connect.commit() # Spara ändringar permanent
+        # printar alla böcker
+        for bok in skriv_ut_alla_böcker:
+            print (f"ID: {bok[0]}, Titel: {bok[1]}, Författare: {bok[2]}, Kategori: {bok[3]}, Utlånad: {'Ja' if bok[4] else 'Nej'}")
 
-        print(f"Boken {titel} har tagits bort från biblioteket.")
+        titel = input ("Ange titeln på boken du vill ta bort:\n").lower()
+        
+        # Söker efter boken med den angivna titeln (case-insenitivt)
+        self.cursor.execute("SELECT * FROM böcker WHERE LOWER(titel) = ?", (titel,))
+        bok = self.cursor.fetchone() # Hämtar första matchande boken från databasen
+
+        # Om boken hittas, ta bort den från databasen
+        if bok:
+            self.cursor.execute("DELETE FROM böcker WHERE ID = ?", (bok[0],)) # Radera boken baserat på dess unika ID
+            print(f"Boken {bok[1]} har tagits bort från biblioteket.")
+            self.connect.commit() # Spara ändringar permanent
+
+        else:
+            print ("Det finns ingen bok med den titeln.")
+        
 
 
 
