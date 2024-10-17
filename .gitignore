@@ -1,0 +1,10 @@
+*.db
+
+# Ignorera PyC-filer (Python cache-filer)
+__pycache__/
+
+# Ignorera alla loggfiler
+log.text
+
+
+
